@@ -1,16 +1,14 @@
 
-// MAC Addr: 24:0A:C4:62:19:78 
+#include <Arduino.h>
 #include <esp_now.h>
-#include <WiFi.h>
-
+#include "WiFi.h" // 24:0A:C4:62:19:78
 #include <Wire.h>
 #include "driver/mcpwm.h"
 
-// REPLACE WITH THE MAC Address of your receiver 
-uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-
 // Variable to store if sending data was successful
 String success;
+
+uint8_t broadcastAddress[] = {0x24, 0x0A, 0xC4, 0x62, 0x19, 0x78};
 
 // Pins
 // MOTOR 1
@@ -29,46 +27,59 @@ int LEN_b = 32;  // Forward enable
 int dir = 0;
 int speed = 0;
 
+// Structure example to send data
+// Must match the receiver structure
+typedef struct struct_message {
+  bool left_fwd = false;
+  bool left_bwd = false;
+  bool right_fwd = false;
+  bool right_bwd = false;
+  int Dir = 0;
+  int speed = 0;
+} struct_message;
 
-// Callback when data is sent
-void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
-  Serial.print("\r\nLast Packet Send Status:\t");
-  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
-  if (status ==0){
-    success = "Delivery Success :)";
-  }
-  else{
-    success = "Delivery Fail :(";
-  }
+// Create a struct_message called received
+struct_message received;
+
+esp_now_peer_info_t peerInfo;
+
+// callback function that will be executed when data is received
+void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
+  memcpy(&received, incomingData, sizeof(received));
+  Serial.print("Command: ");
+  Serial.print(received.Dir);Serial.printf(" @ %d",received.speed);
+  dir = received.Dir;
+  Serial.println();
 }
 
-// Callback when data is received
-void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) { 
-}
- 
 void setup() {
   // Init Serial Monitor
   Serial.begin(115200);
+  WiFi.mode(WIFI_MODE_STA);
+  WiFi.mode(WIFI_STA);
 
-  // Once ESPNow is successfully Init, we will register for Send CB to
-  // get the status of Trasnmitted packet
-  esp_now_register_send_cb(OnDataSent);
-  
-  // Register peer
-  esp_now_peer_info_t peerInfo;
+  // Init ESP-NOW
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("Error initializing ESP-NOW");
+    return;
+  }
+
+  esp_now_register_recv_cb(OnDataRecv);
+
   memcpy(peerInfo.peer_addr, broadcastAddress, 6);
   peerInfo.channel = 0;  
   peerInfo.encrypt = false;
-  
+
   // Add peer        
   if (esp_now_add_peer(&peerInfo) != ESP_OK){
     Serial.println("Failed to add peer");
     return;
-  }
-  // Register for a callback function that will be called when data is received
-  esp_now_register_recv_cb(OnDataRecv);
+  }    
 
-    // put your setup code here, to run once:
+  Serial.println(WiFi.macAddress());
+  Serial.println("gantryOS Version 2 Initializing");
+  Serial.print(" . ");Serial.print(" . ");Serial.println(" . ");
+
   pinMode(RPWM_a,OUTPUT); pinMode(LPWM_a,OUTPUT); pinMode(REN_a,OUTPUT); pinMode(LEN_a,OUTPUT); pinMode(RPWM_b,OUTPUT); pinMode(LPWM_b,OUTPUT); pinMode(REN_b,OUTPUT); pinMode(LEN_b,OUTPUT);
 
   mcpwm_gpio_init(MCPWM_UNIT_0,MCPWM1A,RPWM_a); mcpwm_gpio_init(MCPWM_UNIT_0,MCPWM1B,LPWM_a);  
@@ -90,17 +101,6 @@ void setup() {
 
 void loop() {
   while(1){
-    // put your main code here, to run repeatedly:
-    while(SerialBT.available()){
-      Serial.println("Connected!");
-      String buffer = SerialBT.readString();
-      Serial.println(buffer);
-
-      dir = int(buffer[0]);
-      String sub = buffer.substring(1,sizeof(buffer));
-      speed = sub.toInt();
-    }
-    
       // Message format: [ Direction, Speed ]
       // Direction: 1-Fwd, 2-Bwd, 3-Lt, 4-Rt
 
@@ -135,5 +135,7 @@ void loop() {
         break;
       }
     vTaskDelay(pdMS_TO_TICKS(100)); //Add delay, since it takes time for servo to rotate (100ms)
+
+    // Serial.println("done");
   }
 }
