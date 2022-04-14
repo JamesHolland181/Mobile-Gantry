@@ -1,3 +1,5 @@
+// Purpose: This code is responsible for receiving controller inputs, parsing, and sending them to motors
+// Author: James C. Holland
 
 #include <Arduino.h>
 #include <esp_now.h>
