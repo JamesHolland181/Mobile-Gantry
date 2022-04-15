@@ -97,14 +97,17 @@ void setup() {
 
   // Disable Motors --> Until user input received
   digitalWrite(REN_a,LOW); digitalWrite(REN_b,LOW); digitalWrite(LEN_a,LOW); digitalWrite(LEN_b,LOW);
-
-
 }
+
 
 void loop() {
   while(1){
       // Message format: [ Direction, Speed ]
       // Direction: 1-Fwd, 2-Bwd, 3-Lt, 4-Rt
+
+      if(Serial.available()){
+        dir = Serial.parseInt();
+      }
 
       switch (dir)
       {
@@ -132,12 +135,19 @@ void loop() {
         mcpwm_set_duty(MCPWM_UNIT_0,MCPWM_TIMER_0,MCPWM_OPR_A,speed);
         Serial.printf("Right: %d\n",speed);
         break;                  
-      
+      case 0:
+        digitalWrite(LEN_a,LOW);
+        digitalWrite(LEN_b,LOW);
+        digitalWrite(REN_a,LOW);
+        digitalWrite(REN_b,LOW);        
+        mcpwm_set_duty(MCPWM_UNIT_0,MCPWM_TIMER_0,MCPWM_OPR_A,0);
+        Serial.printf("Stop\n");
       default:
         break;
       }
-    vTaskDelay(pdMS_TO_TICKS(100)); //Add delay, since it takes time for servo to rotate (100ms)
+    vTaskDelay(pdMS_TO_TICKS(10)); //Add delay, since it takes time for servo to rotate (100ms)
 
     // Serial.println("done");
+    dir = 0;
   }
 }
