@@ -36,7 +36,7 @@ typedef struct struct_message {
   bool left_bwd = false;
   bool right_fwd = false;
   bool right_bwd = false;
-  String Dir = "";
+  int Dir = 0;
   int speed = 0;
 } struct_message;
 
@@ -97,13 +97,13 @@ void setup() {
 
   // Disable Motors --> Until user input received
   digitalWrite(REN_a,LOW); digitalWrite(REN_b,LOW); digitalWrite(LEN_a,LOW); digitalWrite(LEN_b,LOW);
-}@id:ms-vscode.cpptools-extension-pack
+}//@id:ms-vscode.cpptools-extension-pack
 
 
 void loop() {
     // Message format: [ Direction, Speed ]
     // Direction: 1-Fwd, 2-Bwd, 3-Lt, 4-Rt
-    dir = "";
+    dir = 0;
 
     if(Serial.available()){
       dir = Serial.parseInt();
@@ -111,25 +111,25 @@ void loop() {
 
     switch (dir)
     {
-    case "fwd": // Fwd
+    case 1: // Fwd
       digitalWrite(LEN_a,HIGH);
       digitalWrite(LEN_b,HIGH);
       mcpwm_set_duty(MCPWM_UNIT_0,MCPWM_TIMER_0,MCPWM_OPR_A,speed);
       Serial.printf("Fwd: %d\n",speed);
       break;
-    case "bwd": // Bwd
+    case 2: // Bwd
       digitalWrite(REN_a,HIGH);
       digitalWrite(REN_b,HIGH);
       mcpwm_set_duty(MCPWM_UNIT_0,MCPWM_TIMER_0,MCPWM_OPR_A,speed);
       Serial.printf("Bwd: %d\n",speed);
       break;
-    case "lt": // Lt
+    case 3: // Lt
       digitalWrite(REN_a,HIGH);
       digitalWrite(LEN_b,HIGH);
       mcpwm_set_duty(MCPWM_UNIT_0,MCPWM_TIMER_0,MCPWM_OPR_A,speed);
       Serial.printf("Left: %d\n",speed);
       break; 
-    case "rt": // Rt
+    case 4: // Rt
       digitalWrite(LEN_a,HIGH);
       digitalWrite(REN_b,HIGH);
       mcpwm_set_duty(MCPWM_UNIT_0,MCPWM_TIMER_0,MCPWM_OPR_A,speed);

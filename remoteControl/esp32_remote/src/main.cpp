@@ -15,7 +15,7 @@ typedef struct struct_message {
   bool left_bwd = false;
   bool right_fwd = false;
   bool right_bwd = false;
-  String Dir = "ntl";
+  int Dir = 0;
   int speed = 0;
 } struct_message;
 
@@ -96,19 +96,19 @@ void loop() {
   // // Monitor inputs 
   // // Joystick
   if(digitalRead(forward) == LOW){
-    command.left_fwd = true; command.left_bwd = false; command.Dir = "fwd";
+    command.left_fwd = true; command.left_bwd = false; command.Dir = 1;
     // Serial.println("fwd");
   } 
   else if(digitalRead(back) == LOW){
-    command.left_fwd = false; command.left_bwd = true; command.Dir = "bwd";
+    command.left_fwd = false; command.left_bwd = true; command.Dir = 2;
     // Serial.println("bwd");
   }
   if(digitalRead(right) == LOW){
-    command.right_fwd = true; command.right_bwd = false; command.Dir = "rt";
+    command.right_fwd = true; command.right_bwd = false; command.Dir = 3;
     // Serial.println("right");
   }
   else if(digitalRead(left) == LOW){
-    command.right_fwd = false; command.right_bwd = true; command.Dir = "lt";
+    command.right_fwd = false; command.right_bwd = true; command.Dir = 4;
     // Serial.println("left");
   }
 
