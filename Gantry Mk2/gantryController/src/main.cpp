@@ -36,7 +36,7 @@ typedef struct struct_message {
   bool left_bwd = false;
   bool right_fwd = false;
   bool right_bwd = false;
-  int Dir = 0;
+  String Dir = "";
   int speed = 0;
 } struct_message;
 
@@ -101,53 +101,48 @@ void setup() {
 
 
 void loop() {
-  while(1){
-      // Message format: [ Direction, Speed ]
-      // Direction: 1-Fwd, 2-Bwd, 3-Lt, 4-Rt
+    // Message format: [ Direction, Speed ]
+    // Direction: 1-Fwd, 2-Bwd, 3-Lt, 4-Rt
+    dir = "";
 
-      if(Serial.available()){
-        dir = Serial.parseInt();
-      }
+    if(Serial.available()){
+      dir = Serial.parseInt();
+    }
 
-      switch (dir)
-      {
-      case 1: // Fwd
-        digitalWrite(LEN_a,HIGH);
-        digitalWrite(LEN_b,HIGH);
-        mcpwm_set_duty(MCPWM_UNIT_0,MCPWM_TIMER_0,MCPWM_OPR_A,speed);
-        Serial.printf("Fwd: %d\n",speed);
-        break;
-      case 2: // Bwd
-        digitalWrite(REN_a,HIGH);
-        digitalWrite(REN_b,HIGH);
-        mcpwm_set_duty(MCPWM_UNIT_0,MCPWM_TIMER_0,MCPWM_OPR_A,speed);
-        Serial.printf("Bwd: %d\n",speed);
-        break;
-      case 3: // Lt
-        digitalWrite(REN_a,HIGH);
-        digitalWrite(LEN_b,HIGH);
-        mcpwm_set_duty(MCPWM_UNIT_0,MCPWM_TIMER_0,MCPWM_OPR_A,speed);
-        Serial.printf("Left: %d\n",speed);
-        break; 
-      case 4: // Rt
-        digitalWrite(LEN_a,HIGH);
-        digitalWrite(REN_b,HIGH);
-        mcpwm_set_duty(MCPWM_UNIT_0,MCPWM_TIMER_0,MCPWM_OPR_A,speed);
-        Serial.printf("Right: %d\n",speed);
-        break;                  
-      case 0:
-        digitalWrite(LEN_a,LOW);
-        digitalWrite(LEN_b,LOW);
-        digitalWrite(REN_a,LOW);
-        digitalWrite(REN_b,LOW);        
-        mcpwm_set_duty(MCPWM_UNIT_0,MCPWM_TIMER_0,MCPWM_OPR_A,0);
-        Serial.printf("Stop\n");
-      default:
-        break;
-      }
-    vTaskDelay(pdMS_TO_TICKS(10)); //Add delay, since it takes time for servo to rotate (100ms)
-
-    // Serial.println("done");
-    dir = 0;
-  }
+    switch (dir)
+    {
+    case "fwd": // Fwd
+      digitalWrite(LEN_a,HIGH);
+      digitalWrite(LEN_b,HIGH);
+      mcpwm_set_duty(MCPWM_UNIT_0,MCPWM_TIMER_0,MCPWM_OPR_A,speed);
+      Serial.printf("Fwd: %d\n",speed);
+      break;
+    case "bwd": // Bwd
+      digitalWrite(REN_a,HIGH);
+      digitalWrite(REN_b,HIGH);
+      mcpwm_set_duty(MCPWM_UNIT_0,MCPWM_TIMER_0,MCPWM_OPR_A,speed);
+      Serial.printf("Bwd: %d\n",speed);
+      break;
+    case "lt": // Lt
+      digitalWrite(REN_a,HIGH);
+      digitalWrite(LEN_b,HIGH);
+      mcpwm_set_duty(MCPWM_UNIT_0,MCPWM_TIMER_0,MCPWM_OPR_A,speed);
+      Serial.printf("Left: %d\n",speed);
+      break; 
+    case "rt": // Rt
+      digitalWrite(LEN_a,HIGH);
+      digitalWrite(REN_b,HIGH);
+      mcpwm_set_duty(MCPWM_UNIT_0,MCPWM_TIMER_0,MCPWM_OPR_A,speed);
+      Serial.printf("Right: %d\n",speed);
+      break;                  
+    default:
+      digitalWrite(LEN_a,LOW);
+      digitalWrite(LEN_b,LOW);
+      digitalWrite(REN_a,LOW);
+      digitalWrite(REN_b,LOW);        
+      mcpwm_set_duty(MCPWM_UNIT_0,MCPWM_TIMER_0,MCPWM_OPR_A,0);
+      Serial.printf("Stop\n");
+      break;
+    }
+  vTaskDelay(pdMS_TO_TICKS(10)); //Add delay, since it takes time for servo to rotate (100ms)
 }

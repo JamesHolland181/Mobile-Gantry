@@ -8,7 +8,7 @@ String success;
 
 uint8_t broadcastAddress[] = {0x24, 0x0A, 0xC4, 0x62, 0x19, 0x78};
 
-// Structure example to send data
+// Structure definition of messages to be sent to robotTM
 // Must match the receiver structure
 typedef struct struct_message {
   bool left_fwd = false;
@@ -31,15 +31,15 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 }
 
 
-// Define joystick pins
+// Define joystick pins --> All joystick switches act as momentary switches
 int back = 2;
 int right = 15;
 int left = 4;
 int forward = 16;
 
 // Define button pins
-int a = 5; 
-int b = 17; 
+int plus = 5; 
+int minus = 17; 
 
 // Command variables
 bool left_fwd = false;
@@ -96,46 +96,35 @@ void loop() {
   // // Monitor inputs 
   // // Joystick
   if(digitalRead(forward) == LOW){
-    left_fwd = true; left_bwd = false;
-    command.left_fwd = true; command.left_bwd = false; command.Dir = 1;
+    command.left_fwd = true; command.left_bwd = false; command.Dir = "fwd";
     // Serial.println("fwd");
-    // sleep(1);    
   } 
   else if(digitalRead(back) == LOW){
-    left_fwd = false; left_bwd = true;
-    command.left_fwd = false; command.left_bwd = true; command.Dir = 2;
+    command.left_fwd = false; command.left_bwd = true; command.Dir = "bwd";
     // Serial.println("bwd");
-    // sleep(1);
   }
   if(digitalRead(right) == LOW){
-    right_fwd = true; right_bwd = false;
-    command.right_fwd = true; command.right_bwd = false; command.Dir = 3;
+    command.right_fwd = true; command.right_bwd = false; command.Dir = "rt";
     // Serial.println("right");
-    // sleep(1);
   }
   else if(digitalRead(left) == LOW){
-    right_fwd = false; right_bwd = true;
-    command.right_fwd = false; command.right_bwd = true; command.Dir = 4;
+    command.right_fwd = false; command.right_bwd = true; command.Dir = "lt";
     // Serial.println("left");
-    // sleep(1);         
   }
 
   // Buttons
-  if(digitalRead(a) == true){speed+=1; command.speed = speed; sleep(1);} // Increase speed
-  if(digitalRead(b) == true){speed-=1; command.speed = speed; sleep(1);} // Decrease speed
+  if(digitalRead(plus) == true){speed+=1; command.speed = speed; } // Increase speed
+  if(digitalRead(minus) == true){speed-=1; command.speed = speed; } // Decrease speed
   
   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &command, sizeof(command));
 
   if (result == ESP_OK) {
-    // Serial.println("Sent with success");
+    Serial.println("Speed: "+String(speed));
+    Serial.println(left_dir+right_dir+speed);
   }
   else {
     // Serial.println("Error sending the data");
   }
-
-  // Print to serial monitor
-  // Serial.println("Speed: "+String(speed));
   
-  // Serial.println(left_dir+right_dir+speed);
   delay(1000);
 }
