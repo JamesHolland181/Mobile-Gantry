@@ -85,7 +85,7 @@ void setup() {
   pinMode(forward,INPUT_PULLUP); pinMode(back,INPUT_PULLUP); pinMode(right,INPUT_PULLUP); pinMode(left,INPUT_PULLUP);  
 
   // Buttons
-  pinMode(a,INPUT_PULLDOWN); pinMode(b,INPUT_PULLDOWN);
+  pinMode(plus,INPUT_PULLDOWN); pinMode(minus,INPUT_PULLDOWN);
 
   // Set up bluetooth or wifi connection
   Serial.begin(115200);

@@ -27,7 +27,7 @@ int LEN_b = 32;  // Forward enable
 
 // Bluetooth
 int dir = 0;
-int speed = 0;
+int speed = 100;
 
 // Structure example to send data
 // Must match the receiver structure
@@ -136,11 +136,15 @@ void loop() {
       Serial.printf("Right: %d\n",speed);
       break;                  
     default:
-      digitalWrite(LEN_a,LOW);
+      // digitalWrite(LEN_a,LOW);
+      // digitalWrite(LEN_b,LOW);
+      // digitalWrite(REN_a,LOW);
+      // digitalWrite(REN_b,LOW);
+      digitalWrite(LEN_a,HIGH);
       digitalWrite(LEN_b,LOW);
-      digitalWrite(REN_a,LOW);
-      digitalWrite(REN_b,LOW);        
-      mcpwm_set_duty(MCPWM_UNIT_0,MCPWM_TIMER_0,MCPWM_OPR_A,0);
+      digitalWrite(REN_a,HIGH);
+      digitalWrite(REN_b,LOW);                   
+      mcpwm_set_duty(MCPWM_UNIT_0,MCPWM_TIMER_0,MCPWM_OPR_A,255);
       Serial.printf("Stop\n");
       break;
     }
